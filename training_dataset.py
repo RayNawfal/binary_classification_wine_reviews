@@ -6,6 +6,7 @@ import os
 #os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import numpy as np
+import tensorflow as tf
 from keras.preprocessing.text import Tokenizer
 from keras.utils import data_utils
 from keras.models import Sequential
@@ -40,8 +41,8 @@ for label_type in ['neg', 'pos']:
 #print(labels)
 
 #tokenizing text
-maxlen = 150 # cuts off review after 100 words
-training_samples = 8000
+maxlen = 100 # cuts off review after 100 words
+training_samples = 5000
 validation_samples = 3000
 max_words = 10000 # top 10,000 words in dataset
 
@@ -98,9 +99,9 @@ model = Sequential()
 model.add(Embedding(max_words, embedding_dim, input_length=maxlen))
 model.add(LSTM(128, dropout=0.2)) # recurrent_dropout=0.2))
 model.add(Flatten())
-#model.add(Dense(8, activation='relu'))
-model.add(Dense(4, activation='relu'))
-model.add(Dense(1, activation='sigmoid'))
+model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu')) # hidden layer
+model.add(Dense(1, activation='sigmoid')) # final output layer with binary classification
 model.summary()
 
 # load pretrained word embeddings into the Embedding layer
@@ -108,13 +109,13 @@ model.layers[0].set_weights([embedding_matrix])
 model.layers[0].trainable = False
 
 # Compile Model
-model.compile(optimizer='rmsprop',
-              loss='binary_crossentropy',
-              metrics=['acc']) #
+model.compile(optimizer='adam',
+              loss='BinaryCrossentropy',
+              metrics=['acc']) # for binary classification # rmsprop
 history = model.fit(x_train, y_train,
-                    epochs=5,
-                    batch_size=16,
-                    validation_data=(x_val, y_val)) # batch_size=32
+                    epochs=15,
+                    batch_size=32,
+                    validation_data=(x_val, y_val)) # batch_size=32 measuring loss and cost function
 
 # evaluate the model
 scores = model.evaluate(x_train, y_train, verbose=0)
@@ -122,7 +123,7 @@ print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
 # save trained model [.h5 = keras save format HDF5]
 #model.save_weights(os.path.abspath('pre_trained_glove_model_02.h5'))
-model.save(os.path.abspath('pre_trained_glove_model_02.h5'))
+model.save(os.path.abspath('pre_trained_glove_model_05.h5'))
 print("Saved model to disk")
 
 acc = history.history['acc']
@@ -154,7 +155,7 @@ x_test = data_utils.pad_sequences(sequences, maxlen=maxlen)
 y_test = np.asarray(labels)
 
 print(f"\n---Testing the Model---\n")
-model.load_weights(os.path.abspath('pre_trained_glove_model_02.h5'))
+model.load_weights(os.path.abspath('pre_trained_glove_model_05.h5'))
 model.evaluate(x_test, y_test)
 
 

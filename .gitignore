@@ -124,6 +124,20 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+.idea/
+aclImdb/
+dist.tar.gz
+glove.6B.300d.txt
+junk.py
+main.py
+package-lock.json
+package.json
+pre_trained_glove_model_02.h5
+pre_trained_glove_model_04.h5
+pre_trained_glove_model_05.h5
+pred_test.py
+
+
 
 # Pyre type checker
 .pyre/
